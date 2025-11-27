@@ -1,0 +1,11 @@
+<svg
+	class=" w-6 h-6"
+	viewBox="0 0 18 18"
+	fill="currentColor"
+	xmlns="http://www.w3.org/2000/svg"
+>
+	<path
+		d="M17.25 12.6667V17.25H0.75V12.6667H2.58333V15.4167H15.4167V12.6667H17.25ZM0.75 8.08333H17.25V9.91667H0.75V8.08333ZM17.25 5.33333H15.4167V2.58333H2.58333V5.33333H0.75V0.75H17.25V5.33333Z"
+		fill="currentColor"
+	/>
+</svg>

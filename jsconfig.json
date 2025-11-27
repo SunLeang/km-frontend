@@ -1,0 +1,18 @@
+{
+	"compilerOptions": {
+		"resolveJsonModule": true,
+		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
+		"baseUrl": ".",
+		"paths": {
+			"$lib": ["src/lib"],
+			"$lib/*": ["src/lib/*"],
+			"$providers": ["src/providers"],
+			"$providers/*": ["src/providers/*"],
+			"$components": ["src/components"],
+			"$components/*": ["src/components/*"]
+		}
+	},
+	"include": ["src/**/*.d.ts", "src/**/*.js", "src/**/*.cjs", "src/**/*.svelte", "*"],
+	"extends": "./.svelte-kit/tsconfig.json"
+}
