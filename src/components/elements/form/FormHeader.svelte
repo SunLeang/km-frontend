@@ -1,8 +1,9 @@
 <header
   class="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-gray-100"
 >
-  <div class="max-w-md mx-auto px-4 h-14 flex items-center justify-between">
+  <div class="max-w-full mx-auto px-4 h-14 flex items-center justify-between">
     <button
+      on:click={() => history.back()}
       class="p-2 -ml-2 hover:bg-gray-100 rounded-full transition-colors"
       aria-label="Go back"
     >
