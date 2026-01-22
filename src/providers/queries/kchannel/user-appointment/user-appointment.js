@@ -46,6 +46,8 @@ export const GET_FORM_BY_SLUG_QUERY = gql`
       id
       title
       description
+      published
+      slug
       questions {
         _id
         type
@@ -55,6 +57,10 @@ export const GET_FORM_BY_SLUG_QUERY = gql`
         options
         scaleMin
         scaleMax
+      }
+      channel {
+        id
+        name
       }
     }
   }
@@ -161,6 +167,70 @@ export const SUBMIT_BY_SLUG_MUTATION = gql`
 export const DELETE_RESPONSE_MUTATION = gql`
   mutation DeleteResponse($id: String!) {
     appointmentDeleteResponse(param: { id: $id }) {
+      id
+    }
+  }
+`;
+
+export const DELETE_FORM_MUTATION = gql`
+  mutation DeleteForm($param: DeleteFormInput!) {
+    appointmentDeleteFormWithSlug(param: $param) {
+      id
+      slug
+    }
+  }
+`;
+
+export const GET_AVAILABLE_TIME_SLOTS_QUERY = gql`
+  query GetAvailableTimeSlots($appointmentFormId: String!, $date: Float!) {
+    getAvailableTimeSlots(
+      param: { appointmentFormId: $appointmentFormId, date: $date }
+    )
+  }
+`;
+
+export const GET_SCHEDULES_BY_FORM_QUERY = gql`
+  query GetSchedulesByForm($formId: String!) {
+    getAppointmentSchedulesByForm(formId: $formId) {
+      id
+      day
+      start_time
+      end_time
+      is_active
+      appointment_form {
+        id
+      }
+    }
+  }
+`;
+
+export const CREATE_SCHEDULE_MUTATION = gql`
+  mutation CreateSchedule($param: CreateAppointmentScheduleInput!) {
+    createAppointmentSchedule(param: $param) {
+      id
+      day
+      start_time
+      end_time
+      is_active
+    }
+  }
+`;
+
+export const UPDATE_SCHEDULE_MUTATION = gql`
+  mutation UpdateSchedule($params: UpdateAppointmentScheduleInput!) {
+    updateAppointmentSchedule(params: $params) {
+      id
+      day
+      start_time
+      end_time
+      is_active
+    }
+  }
+`;
+
+export const DELETE_SCHEDULE_MUTATION = gql`
+  mutation DeleteSchedule($params: DeleteAppointmentScheduleInput!) {
+    deleteAppointmentSchedule(params: $params) {
       id
     }
   }

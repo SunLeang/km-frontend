@@ -146,3 +146,84 @@ export const deleteResponse = {
     return res;
   },
 };
+
+export const deleteForm = {
+  load: async (param) => {
+    const res = await endpointFetch(
+      {
+        mutation: GQL.DELETE_FORM_MUTATION,
+        variables: { param },
+      },
+      APIs.KCHANNEL
+    );
+    if (res?.success) {
+      appointmentFormsStore.deleteById({ id: param.id });
+    }
+    return res;
+  },
+};
+
+export const getAvailableTimeSlots = {
+  load: async ({ appointmentFormId, date }) => {
+    const res = await endpointFetch(
+      {
+        query: GQL.GET_AVAILABLE_TIME_SLOTS_QUERY,
+        variables: { appointmentFormId, date },
+      },
+      APIs.KCHANNEL
+    );
+    return res;
+  },
+};
+
+export const getSchedulesByForm = {
+  load: async (formId) => {
+    const res = await endpointFetch(
+      {
+        query: GQL.GET_SCHEDULES_BY_FORM_QUERY,
+        variables: { formId },
+      },
+      APIs.KCHANNEL
+    );
+    return res;
+  },
+};
+
+export const createSchedule = {
+  load: async (param) => {
+    const res = await endpointFetch(
+      {
+        mutation: GQL.CREATE_SCHEDULE_MUTATION,
+        variables: { param },
+      },
+      APIs.KCHANNEL
+    );
+    return res;
+  },
+};
+
+export const updateSchedule = {
+  load: async (params) => {
+    const res = await endpointFetch(
+      {
+        mutation: GQL.UPDATE_SCHEDULE_MUTATION,
+        variables: { params },
+      },
+      APIs.KCHANNEL
+    );
+    return res;
+  },
+};
+
+export const deleteSchedule = {
+  load: async (params) => {
+    const res = await endpointFetch(
+      {
+        mutation: GQL.DELETE_SCHEDULE_MUTATION,
+        variables: { params },
+      },
+      APIs.KCHANNEL
+    );
+    return res;
+  },
+};
