@@ -5,6 +5,7 @@
     getFormBySlug,
     submitBySlug,
     getSchedulesByForm,
+    getAvailableTimeSlots,
   } from "$providers/actions/kchannel/user-appointment/user-appointment";
 
   import SMFBLoading from "$components/materials/spinners/fbLoading/SMFBLoading.svelte";
@@ -20,6 +21,7 @@
   let schedules = [];
   let availableSlots = [];
   let selectedSlot = null;
+  let bookedSlotsByDate = {}; // Store booked slots grouped by date
 
   const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
@@ -63,29 +65,48 @@
       const res = await getSchedulesByForm.load(form.id);
       if (res?.success) {
         schedules = res.data?.getAppointmentSchedulesByForm || [];
-        generateAvailableSlots();
+        await generateAvailableSlots();
       }
     } catch (err) {
       console.error("Error loading schedules:", err);
     }
   }
 
-  function generateAvailableSlots() {
+  async function generateAvailableSlots() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
     const slots = [];
+    const bookedSlotsPromises = [];
     
-    // Generate slots for the next 30 days
+    // Generate slots for the next 30 days and collect promises for booked slots
     for (let i = 0; i < 30; i++) {
       const date = new Date(today);
       date.setDate(today.getDate() + i);
       const dayOfWeek = date.getDay();
+      const timestamp = date.getTime();
       
       // Find schedules for this day of week that are active
       const daySchedules = schedules.filter(
         s => s.day === dayOfWeek && s.is_active
       );
+      
+      if (daySchedules.length > 0) {
+        // Fetch booked slots for this date
+        bookedSlotsPromises.push(
+          getAvailableTimeSlots.load({
+            appointmentFormId: form.id,
+            date: timestamp
+          }).then(res => {
+            if (res?.success) {
+              bookedSlotsByDate[timestamp] = res.data?.getAvailableTimeSlots || [];
+            }
+          }).catch(err => {
+            console.error("Error fetching booked slots:", err);
+            bookedSlotsByDate[timestamp] = [];
+          })
+        );
+      }
       
       // Create a slot for each schedule
       daySchedules.forEach(schedule => {
@@ -99,7 +120,7 @@
           }),
           dayOfWeek: DAYS[dayOfWeek],
           schedule: schedule,
-          timestamp: date.getTime(),
+          timestamp: timestamp,
           startTime: schedule.start_time,
           endTime: schedule.end_time,
           displayTime: formatTimeRange(schedule.start_time, schedule.end_time)
@@ -107,7 +128,15 @@
       });
     }
     
-    availableSlots = slots;
+    // Wait for all booked slots to be fetched
+    await Promise.all(bookedSlotsPromises);
+    
+    // Filter out booked slots (slots where the time is already taken)
+    availableSlots = slots.filter(slot => {
+      const bookedTimes = bookedSlotsByDate[slot.timestamp] || [];
+      // Slot is available if its start time is NOT in the booked times list
+      return !bookedTimes.includes(slot.startTime);
+    });
   }
 
   function formatTimeRange(startMinutes, endMinutes) {
