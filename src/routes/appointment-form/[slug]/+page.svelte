@@ -196,12 +196,20 @@
     try {
       submitting = true;
 
-      const formattedAnswers = Object.keys(answers).map((questionId) => ({
-        questionId: questionId,
-        value: Array.isArray(answers[questionId])
-          ? answers[questionId].join(", ")
-          : String(answers[questionId]),
-      }));
+      const formattedAnswers = Object.keys(answers)
+        .filter((questionId) => {
+          const val = answers[questionId];
+          // Filter out empty answers (empty string, empty array, null, undefined)
+          if (val === null || val === undefined || val === "") return false;
+          if (Array.isArray(val) && val.length === 0) return false;
+          return true;
+        })
+        .map((questionId) => ({
+          questionId: questionId,
+          value: Array.isArray(answers[questionId])
+            ? answers[questionId].join(", ")
+            : String(answers[questionId]),
+        }));
 
       const res = await submitBySlug.load({
         slug: $page.params.slug,

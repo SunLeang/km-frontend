@@ -12,6 +12,13 @@
   let loading = true;
   let formMetadata = null;
 
+  // Helper to check if an answer is empty
+  const isEmptyAnswer = (value) => {
+    if (value === null || value === undefined || value === "") return true;
+    if (typeof value === "string" && value.trim() === "") return true;
+    return false;
+  };
+
   // Helper to find the Question Label from the Metadata using the ID
   const getQuestionLabel = (id) => {
     if (!formMetadata?.questions) return "Question";
@@ -175,7 +182,7 @@
               <div
                 class="bg-gray-50/50 rounded-3xl p-4 sm:p-6 space-y-6 border border-gray-50"
               >
-                {#each res.answers as answer}
+                {#each res.answers.filter(a => !isEmptyAnswer(a.value)) as answer}
                   <div class="relative pl-6 border-l-2 border-teal-100">
                     <p
                       class="text-[10px] font-black text-teal-600 uppercase tracking-widest mb-2"
@@ -185,7 +192,7 @@
                     <p
                       class="text-gray-700 text-sm font-medium leading-relaxed"
                     >
-                      {answer.value || "—"}
+                      {answer.value}
                     </p>
                   </div>
                 {/each}
