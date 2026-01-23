@@ -68,6 +68,23 @@ export const GET_ALL_UPCOMING_PENDING_APPOINTMENT_BOOKING = gql`
   }
 `;
 
+export const GET_ALL_UPCOMING_REJECTED_APPOINTMENT_BOOKING = gql`
+  query {
+    getAllUpcomingRejectedAppointmentBooking {
+      id
+      user {
+        id
+        username
+        firstName
+        lastName
+      }
+      date
+      time_start
+      status
+    }
+  }
+`;
+
 export const UPDATE_APPOINTMENT_BOOKING_STATUS = gql`
   mutation UpdateAppointmentBooking($id: String!, $status: String!) {
     updateAppointmentBooking(params: { id: $id, status: $status }) {

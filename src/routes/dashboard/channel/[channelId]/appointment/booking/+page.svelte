@@ -4,6 +4,7 @@
     import {
         getAllUpcomingPendingAppointmentBooking,
         getAllUpcomingAcceptedAppointmentBooking,
+        getAllUpcomingRejectedAppointmentBooking,
         approveAppointmentBooking,
         rejectAppointmentBooking,
     } from "$providers/actions/kchannel/appointment/dashboard";
@@ -13,6 +14,7 @@
 
     let pendingBookings = [];
     let acceptedBookings = [];
+    let rejectedBookings = [];
     let loading = true;
     let processingId = null;
     let showRejectModal = false;
@@ -41,9 +43,10 @@
     async function loadBookings() {
         loading = true;
         try {
-            const [pendingRes, acceptedRes] = await Promise.all([
+            const [pendingRes, acceptedRes, rejectedRes] = await Promise.all([
                 getAllUpcomingPendingAppointmentBooking.load(),
                 getAllUpcomingAcceptedAppointmentBooking.load(),
+                getAllUpcomingRejectedAppointmentBooking.load(),
             ]);
 
             if (pendingRes?.success) {
@@ -54,6 +57,11 @@
             if (acceptedRes?.success) {
                 acceptedBookings =
                     acceptedRes.data.getAllUpcomingAcceptedAppointmentBooking || [];
+            }
+
+            if (rejectedRes?.success) {
+                rejectedBookings =
+                    rejectedRes.data.getAllUpcomingRejectedAppointmentBooking || [];
             }
         } catch (error) {
             console.error("Failed to load bookings:", error);
@@ -217,7 +225,7 @@
         </div>
 
         <!-- Accepted Bookings Section -->
-        <div>
+        <div class="mb-8">
             <div class="bg-white rounded-lg shadow-sm border border-gray-200">
                 <div class="px-6 py-4 border-b border-gray-200">
                     <h2 class="text-xl font-semibold text-gray-900">
@@ -267,6 +275,82 @@
                                                     {formatTime(booking.time_start)}
                                                 </p>
                                             </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {/each}
+                        </div>
+                    {/if}
+                </div>
+            </div>
+        </div>
+
+        <!-- Rejected Bookings Section -->
+        <div>
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-xl font-semibold text-gray-900">
+                        Rejected Bookings
+                        <span class="ml-2 text-sm font-normal text-gray-500">
+                            ({rejectedBookings.length})
+                        </span>
+                    </h2>
+                </div>
+
+                <div class="p-6">
+                    {#if rejectedBookings.length === 0}
+                        <div class="text-center py-12 text-gray-500">
+                            <p>No rejected bookings</p>
+                        </div>
+                    {:else}
+                        <div class="space-y-4">
+                            {#each rejectedBookings as booking (booking.id)}
+                                <div
+                                    class="border border-gray-200 rounded-lg p-4 bg-red-50/50"
+                                >
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex-1">
+                                            <div class="flex items-center gap-3 mb-2">
+                                                <span
+                                                    class="px-3 py-1 bg-red-100 text-red-800 text-xs font-medium rounded-full"
+                                                >
+                                                    Rejected
+                                                </span>
+                                                <p class="text-lg font-semibold text-gray-900">
+                                                    {booking.user.firstName}
+                                                    {booking.user.lastName}
+                                                </p>
+                                            </div>
+
+                                            <div class="space-y-1 text-sm text-gray-600">
+                                                <p>
+                                                    <span class="font-medium">Username:</span>
+                                                    {booking.user.username}
+                                                </p>
+                                                <p>
+                                                    <span class="font-medium">Date:</span>
+                                                    {formatDate(booking.date)}
+                                                </p>
+                                                <p>
+                                                    <span class="font-medium">Time:</span>
+                                                    {formatTime(booking.time_start)}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex gap-2 ml-4">
+                                            <button
+                                                on:click={() => handleApprove(booking.id)}
+                                                disabled={processingId === booking.id}
+                                                class="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                            >
+                                                {#if processingId === booking.id}
+                                                    <div class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                                                {:else}
+                                                    <Check class="w-4 h-4" />
+                                                {/if}
+                                                Approve
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
