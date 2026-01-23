@@ -58,9 +58,12 @@
                 </div>
             {:else}
                 {#each answers as answer}
+                    {@const answerObj = typeof answer.answer === 'string' ? JSON.parse(answer.answer) : answer.answer}
+                    {@const questionText = answer.appointment_question?.question || answerObj?.questionLabel || "No question"}
+                    {@const answerValue = answerObj?.value || answerObj || "No answer"}
                     <QuestionAnswerCard 
-                        question={answer.appointment_question?.question || "No question"} 
-                        answer={typeof answer.answer === 'object' ? JSON.stringify(answer.answer) : (answer.answer || "No answer")}
+                        question={questionText} 
+                        answer={typeof answerValue === 'object' ? JSON.stringify(answerValue) : answerValue}
                     />
                 {/each}
             {/if}
