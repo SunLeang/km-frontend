@@ -105,7 +105,7 @@ export const GET_FORM_RESPONSES_QUERY = gql`
 `;
 
 export const CREATE_FORM_MUTATION = gql`
-  mutation CreateForm($param: CreateFormInput!) {
+  mutation CreateForm($param: AppointmentCreateFormInput!) {
     appointmentCreateFormWithSlug(param: $param) {
       id
       title
@@ -119,7 +119,7 @@ export const CREATE_FORM_MUTATION = gql`
 `;
 
 export const UPDATE_FORM_MUTATION = gql`
-  mutation UpdateForm($param: UpdateFormInput!) {
+  mutation UpdateForm($param: AppointmentUpdateFormInput!) {
     appointmentUpdateFormWithSlug(param: $param) {
       id
       title
@@ -136,7 +136,7 @@ export const UPDATE_FORM_MUTATION = gql`
 `;
 
 export const SUBMIT_RESPONSE_MUTATION = gql`
-  mutation SubmitFormResponse($param: SubmitResponseInput!) {
+  mutation SubmitFormResponse($param: AppointmentSubmitResponseInput!) {
     appointmentSubmitResponse(param: $param) {
       id
       createdAt
@@ -152,7 +152,7 @@ export const SUBMIT_RESPONSE_MUTATION = gql`
 `;
 
 export const SUBMIT_BY_SLUG_MUTATION = gql`
-  mutation SubmitBySlug($param: SubmitResponseBySlugInput!) {
+  mutation SubmitBySlug($param: AppointmentSubmitResponseBySlugInput!) {
     appointmentSubmitResponseBySlug(param: $param) {
       id
       createdAt
@@ -173,7 +173,7 @@ export const DELETE_RESPONSE_MUTATION = gql`
 `;
 
 export const DELETE_FORM_MUTATION = gql`
-  mutation DeleteForm($param: DeleteFormInput!) {
+  mutation DeleteForm($param: AppointmentDeleteFormInput!) {
     appointmentDeleteFormWithSlug(param: $param) {
       id
       slug
