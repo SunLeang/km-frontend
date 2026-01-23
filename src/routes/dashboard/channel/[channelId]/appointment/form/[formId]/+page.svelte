@@ -220,7 +220,8 @@
         ></textarea>
       </section>
 
-      <!-- Publish Section -->
+      <!-- Publish Section (Hidden in Preview Mode) -->
+      {#if view === "edit"}
       <section class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 mb-6">
         <div class="flex items-center justify-between mb-4">
           <div>
@@ -277,8 +278,9 @@
         {/if}
       </section>
 
-      <!-- Schedule Management -->
+      <!-- Schedule Management (Hidden in Preview Mode) -->
       <ScheduleManager formId={form.id} channelId={form.channel?.id || $page.params.channelId} />
+      {/if}
 
       {#if view === "edit"}
         <div class="space-y-4">
@@ -316,10 +318,68 @@
           <p class="text-blue-700 text-sm mt-1">This is how your form will appear to users. Switch to Edit mode to make changes.</p>
         </div>
 
+        <!-- Appointment Slot Selection Preview (matches user view) -->
+        <div class="bg-teal-50 rounded-2xl p-6 border-2 border-teal-200 mb-6">
+          <h3 class="text-xl font-bold text-gray-900 mb-4">📅 Select Appointment Slot</h3>
+          <p class="text-sm text-gray-600 mb-4">
+            Choose from the available time slots below (this is a preview - actual availability depends on configured schedules)
+          </p>
+          <div class="max-h-64 overflow-y-auto space-y-2 pr-2">
+            <!-- Sample slot for preview -->
+            <button
+              type="button"
+              class="w-full text-left p-4 rounded-xl border-2 border-teal-600 bg-teal-100 shadow-md"
+            >
+              <div class="flex items-center justify-between">
+                <div class="flex-1">
+                  <div class="flex items-center gap-2">
+                    <span class="text-lg font-bold text-gray-900">
+                      Sample Date
+                    </span>
+                    <span class="text-xs font-semibold px-2 py-1 rounded-full bg-teal-600 text-white">
+                      Monday
+                    </span>
+                  </div>
+                  <div class="flex items-center gap-2 mt-1">
+                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span class="text-sm text-gray-600">9:00 AM - 10:00 AM</span>
+                  </div>
+                </div>
+                <svg class="w-6 h-6 text-teal-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+              </div>
+            </button>
+          </div>
+          <div class="mt-4 p-4 bg-white rounded-lg border border-teal-200">
+            <p class="text-sm font-semibold text-teal-800">✓ Selected Appointment:</p>
+            <p class="text-gray-900 font-bold mt-1">
+              Sample Date at 9:00 AM - 10:00 AM
+            </p>
+          </div>
+        </div>
+
+        <!-- Form Questions Preview -->
         <div class="space-y-4">
           {#each form.questions as q}
             <PreviewCard question={q} />
           {/each}
+        </div>
+
+        <!-- Submit Button Preview -->
+        <div class="pt-6">
+          <button
+            type="button"
+            disabled
+            class="w-full bg-[#4db6ac] text-white px-8 py-4 rounded-2xl font-black text-xl opacity-50 cursor-not-allowed"
+          >
+            Confirm Appointment (Preview Only)
+          </button>
+          <p class="text-center text-gray-400 text-xs mt-4">
+            Secure submission powered by AppointmentFlow
+          </p>
         </div>
       {/if}
     {/if}

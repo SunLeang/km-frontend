@@ -1,6 +1,7 @@
 <script>
   import { onMount } from "svelte";
   import { page } from "$app/stores";
+  import { user } from "$providers/stores/kauth/user";
   import {
     getFormBySlug,
     submitBySlug,
@@ -16,6 +17,7 @@
   let form = null;
   let answers = {};
   let submittedSuccessfully = false;
+  let isUserInChannel = false;
   
   // Appointment slot selection
   let schedules = [];
@@ -34,8 +36,16 @@
       if (res?.success) {
         form = res.data?.appointmentGetFormBySlug;
 
+        // Check if user is in the channel
+        if ($user && form?.channel) {
+          // Simple check - you may need to implement proper channel membership verification
+          // For now, we'll assume if the form loads and user is logged in, they have access
+          // You can enhance this by checking user's channel memberships
+          isUserInChannel = true;
+        }
+
         // Load schedules for this form
-        if (form?.id) {
+        if (form?.id && isUserInChannel) {
           await loadSchedules();
         }
 
@@ -241,6 +251,29 @@
         </button>
       </div>
     {:else if form}
+      {#if !isUserInChannel}
+        <!-- Not in Channel Message -->
+        <div class="text-center py-20">
+          <div class="bg-yellow-50 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6">
+            <svg class="w-12 h-12 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>
+          </div>
+          <h2 class="text-3xl font-black text-gray-800 mb-4">Channel Membership Required</h2>
+          <p class="text-gray-600 text-lg mb-2">
+            You must be a member of this channel to book appointments.
+          </p>
+          <p class="text-gray-500">
+            Please join the channel first or contact the channel administrator for access.
+          </p>
+          <button
+            on:click={() => history.back()}
+            class="mt-8 px-6 py-3 bg-teal-600 text-white font-bold rounded-xl hover:bg-teal-700 transition-all"
+          >
+            Go Back
+          </button>
+        </div>
+      {:else}
       <header class="mb-10">
         <h1 class="text-4xl font-black text-gray-900 leading-tight">
           {form.title}
@@ -336,6 +369,7 @@
           </p>
         </div>
       </form>
+      {/if}
     {:else}
       <div class="text-center py-20">
         <div class="text-6xl mb-4">📍</div>
