@@ -5,6 +5,7 @@ import {
   GET_ALL_UPCOMING_APPOINTMENT_BOOKING,
   GET_ALL_UPCOMING_ACCEPTED_APPOINTMENT_BOOKING,
   GET_ALL_UPCOMING_PENDING_APPOINTMENT_BOOKING,
+  GET_ALL_UPCOMING_REJECTED_APPOINTMENT_BOOKING,
   UPDATE_APPOINTMENT_BOOKING_STATUS,
   APPROVE_APPOINTMENT_BOOKING,
   REJECT_APPOINTMENT_BOOKING,
@@ -57,6 +58,19 @@ export const getAllUpcomingPendingAppointmentBooking = {
     const res = await endpointFetch(
       {
         query: GET_ALL_UPCOMING_PENDING_APPOINTMENT_BOOKING,
+        variables: {},
+      },
+      APIs.KCHANNEL,
+    );
+    return res;
+  },
+};
+
+export const getAllUpcomingRejectedAppointmentBooking = {
+  load: async () => {
+    const res = await endpointFetch(
+      {
+        query: GET_ALL_UPCOMING_REJECTED_APPOINTMENT_BOOKING,
         variables: {},
       },
       APIs.KCHANNEL,
