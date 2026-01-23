@@ -1,5 +1,5 @@
 <script>
-	import WhoAmI from '$components/elements/WhoAmI.svelte';
+  import WhoAmI from "$components/elements/WhoAmI.svelte";
 </script>
 
 <WhoAmI />

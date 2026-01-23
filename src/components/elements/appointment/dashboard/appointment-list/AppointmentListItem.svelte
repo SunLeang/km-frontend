@@ -46,7 +46,7 @@
     </td>
     <td class="px-6 py-3">
         <Modal shown={showDetail}>
-            <AppointmentListItemDetail on:close={()=>{showDetail=false}}/>
+            <AppointmentListItemDetail appointmentInfo={appointmentInfo} on:close={()=>{showDetail=false}}/>
         </Modal>
         <button on:click={()=>{showDetail=true}} class="whitespace-nowrap flex items-center text-sm text-[#004E80] border-2 border-[#004E80] rounded-md px-1 duration-100 hover:bg-[#004E80] hover:text-white overflow-hidden">
             <Eye/>View Detail
