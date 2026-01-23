@@ -158,3 +158,20 @@ export const CREATE_APPOINTMENT = gql`
     }
   }
 `;
+
+export const GET_ANSWERS_BY_BOOKING_ID = gql`
+  query GetAnswersByBookingId($bookingId: String!) {
+    getAnswersByBookingId(bookingId: $bookingId) {
+      id
+      type
+      answer
+      appointment_question {
+        id
+        question
+        type
+        is_required
+        answer
+      }
+    }
+  }
+`;

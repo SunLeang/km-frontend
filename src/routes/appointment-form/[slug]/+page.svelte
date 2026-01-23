@@ -8,6 +8,7 @@
     getSchedulesByForm,
     getAvailableTimeSlots,
   } from "$providers/actions/kchannel/user-appointment/user-appointment";
+  import { getChannels } from "$providers/actions/kchannel/channel/channel";
 
   import SMFBLoading from "$components/materials/spinners/fbLoading/SMFBLoading.svelte";
   import QuestionDisplay from "$components/elements/form/appointment-form/QuestionDisplay.svelte";
@@ -18,6 +19,7 @@
   let answers = {};
   let submittedSuccessfully = false;
   let isUserInChannel = false;
+  let checkingChannelMembership = true;
   
   // Appointment slot selection
   let schedules = [];
@@ -38,13 +40,25 @@
 
         // Check if user is in the channel
         if ($user && form?.channel) {
-          // Simple check - you may need to implement proper channel membership verification
-          // For now, we'll assume if the form loads and user is logged in, they have access
-          // You can enhance this by checking user's channel memberships
-          isUserInChannel = true;
+          try {
+            checkingChannelMembership = true;
+            const myChannelsRes = await getChannels.load();
+            if (myChannelsRes?.success) {
+              const myChannels = myChannelsRes.data || [];
+              // Check if user is a member of the form's channel
+              isUserInChannel = myChannels.some(ch => ch.id === form.channel.id);
+            }
+          } catch (err) {
+            console.error("Error checking channel membership:", err);
+            isUserInChannel = false;
+          } finally {
+            checkingChannelMembership = false;
+          }
+        } else {
+          checkingChannelMembership = false;
         }
 
-        // Load schedules for this form
+        // Load schedules for this form only if user is in channel
         if (form?.id && isUserInChannel) {
           await loadSchedules();
         }

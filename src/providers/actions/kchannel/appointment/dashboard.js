@@ -10,6 +10,7 @@ import {
   REJECT_APPOINTMENT_BOOKING,
   GET_AVAILABLE_TIME_SLOTS,
   CREATE_APPOINTMENT,
+  GET_ANSWERS_BY_BOOKING_ID,
 } from "$providers/queries/kchannel/appointment/dashboard";
 
 export const getAllAppointmentBooking = {
@@ -19,7 +20,7 @@ export const getAllAppointmentBooking = {
         query: GET_ALL_APPOINTMENT_BOOKING,
         variables: {},
       },
-      APIs.KCHANNEL
+      APIs.KCHANNEL,
     );
     return res;
   },
@@ -32,7 +33,7 @@ export const getAllUpcomingAppointmentBooking = {
         query: GET_ALL_UPCOMING_APPOINTMENT_BOOKING,
         variables: {},
       },
-      APIs.KCHANNEL
+      APIs.KCHANNEL,
     );
     return res;
   },
@@ -45,7 +46,7 @@ export const getAllUpcomingAcceptedAppointmentBooking = {
         query: GET_ALL_UPCOMING_ACCEPTED_APPOINTMENT_BOOKING,
         variables: {},
       },
-      APIs.KCHANNEL
+      APIs.KCHANNEL,
     );
     return res;
   },
@@ -58,7 +59,7 @@ export const getAllUpcomingPendingAppointmentBooking = {
         query: GET_ALL_UPCOMING_PENDING_APPOINTMENT_BOOKING,
         variables: {},
       },
-      APIs.KCHANNEL
+      APIs.KCHANNEL,
     );
     return res;
   },
@@ -71,7 +72,7 @@ export const updateAppointmentBookingStatus = {
         query: UPDATE_APPOINTMENT_BOOKING_STATUS,
         variables: { id, status },
       },
-      APIs.KCHANNEL
+      APIs.KCHANNEL,
     );
     return res;
   },
@@ -84,7 +85,7 @@ export const approveAppointmentBooking = {
         mutation: APPROVE_APPOINTMENT_BOOKING,
         variables: { id },
       },
-      APIs.KCHANNEL
+      APIs.KCHANNEL,
     );
     return res;
   },
@@ -97,7 +98,7 @@ export const rejectAppointmentBooking = {
         mutation: REJECT_APPOINTMENT_BOOKING,
         variables: { id, reason },
       },
-      APIs.KCHANNEL
+      APIs.KCHANNEL,
     );
     return res;
   },
@@ -110,7 +111,7 @@ export const getAvailableTimeSlots = {
         query: GET_AVAILABLE_TIME_SLOTS,
         variables: { appointmentFormId, date },
       },
-      APIs.KCHANNEL
+      APIs.KCHANNEL,
     );
     return res;
   },
@@ -123,7 +124,20 @@ export const createAppointment = {
         mutation: CREATE_APPOINTMENT,
         variables: { appointment_form, date, time_start },
       },
-      APIs.KCHANNEL
+      APIs.KCHANNEL,
+    );
+    return res;
+  },
+};
+
+export const getAnswersByBookingId = {
+  load: async (bookingId) => {
+    const res = await endpointFetch(
+      {
+        query: GET_ANSWERS_BY_BOOKING_ID,
+        variables: { bookingId },
+      },
+      APIs.KCHANNEL,
     );
     return res;
   },
