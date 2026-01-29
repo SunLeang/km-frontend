@@ -1,28 +1,36 @@
 <script>
+  // Importing lifecycle hook from Svelte
   import { onMount } from "svelte";
+
+  // Importing API actions for user appointment schedules
   import {
     getSchedulesByForm,
     createSchedule,
     updateSchedule,
     deleteSchedule,
   } from "$providers/actions/kchannel/user-appointment/user-appointment";
+
+  // Importing a loading spinner component
   import SMFBLoading from "$components/materials/spinners/fbLoading/SMFBLoading.svelte";
 
-  export let formId;
-  export let channelId;
+  // Props passed to this component
+  export let formId;      // Appointment form ID
+  export let channelId;   // Channel ID for the schedules
 
-  let schedules = [];
-  let loading = true;
-  let saving = false;
-  let showQuickSetup = false;
+  // Local state variables
+  let schedules = [];     // Array to store schedules
+  let loading = true;     // Loading state for initial data fetch
+  let saving = false;     // Saving state for create/update/delete actions
+  let showQuickSetup = false; // Controls visibility of Quick Setup panel
 
-  // Quick setup state
+  // Quick setup state for bulk day/time configuration
   let quickSetup = {
-    selectedDays: [],
-    start_time: 540, // 9:00 AM
-    end_time: 1020, // 5:00 PM
+    selectedDays: [],     // Array of selected day numbers (0-6)
+    start_time: 540,      // Default start time in minutes (9:00 AM)
+    end_time: 1020,       // Default end time in minutes (5:00 PM)
   };
 
+  // Array of days for selection/dropdown
   const DAYS = [
     { value: 0, label: "Sunday" },
     { value: 1, label: "Monday" },
@@ -33,14 +41,16 @@
     { value: 6, label: "Saturday" },
   ];
 
+  // Lifecycle hook: Load schedules when component mounts
   onMount(async () => {
     await loadSchedules();
   });
 
+  // Function to load schedules from API
   async function loadSchedules() {
     try {
       loading = true;
-      const res = await getSchedulesByForm.load(formId);
+      const res = await getSchedulesByForm.load(formId); // API call
       if (res?.success) {
         schedules = res.data?.getAppointmentSchedulesByForm || [];
       }
@@ -51,23 +61,26 @@
     }
   }
 
+  // Add a new empty schedule to the local array
   function addSchedule() {
     schedules = [
       ...schedules,
       {
-        day: 1,
-        start_time: 540, // 9:00 AM
-        end_time: 1020, // 5:00 PM
-        is_active: true,
-        isNew: true,
+        day: 1,                // Default day: Monday
+        start_time: 540,       // 9:00 AM
+        end_time: 1020,        // 5:00 PM
+        is_active: true,       // Schedule is active by default
+        isNew: true,           // Mark as new (not yet saved in DB)
       },
     ];
   }
 
+  // Save a schedule (create if new, update if existing)
   async function saveSchedule(schedule, index) {
     try {
       saving = true;
       if (schedule.isNew) {
+        // Create new schedule
         const res = await createSchedule.load({
           channel: channelId,
           appointment_form: formId,
@@ -77,12 +90,13 @@
           is_active: schedule.is_active,
         });
         if (res?.success) {
-          schedules[index] = res.data.createAppointmentSchedule;
-          delete schedules[index].isNew;
-          schedules = schedules;
+          schedules[index] = res.data.createAppointmentSchedule; // Update local array with saved schedule
+          delete schedules[index].isNew; // Remove isNew flag
+          schedules = schedules; // Trigger reactivity
           alert("Schedule added successfully!");
         }
       } else {
+        // Update existing schedule
         const res = await updateSchedule.load({
           id: schedule.id,
           channel: channelId,
@@ -104,16 +118,20 @@
     }
   }
 
+  // Remove a schedule
   async function removeSchedule(schedule, index) {
+    // Confirm deletion for existing schedules
     if (!schedule.isNew && !confirm("Delete this schedule?")) return;
 
     try {
       if (schedule.isNew) {
+        // Remove from local array if it's a new unsaved schedule
         schedules = schedules.filter((_, i) => i !== index);
       } else {
+        // Delete from API
         const res = await deleteSchedule.load({ id: schedule.id });
         if (res?.success) {
-          schedules = schedules.filter((_, i) => i !== index);
+          schedules = schedules.filter((_, i) => i !== index); // Remove from local array
           alert("Schedule deleted successfully!");
         }
       }
@@ -123,6 +141,7 @@
     }
   }
 
+  // Convert minutes to a formatted time string (e.g., 540 -> "9:00 AM")
   function formatTime(minutes) {
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
@@ -131,17 +150,20 @@
     return `${displayHours}:${mins.toString().padStart(2, "0")} ${period}`;
   }
 
+  // Convert time string ("HH:MM") to minutes
   function timeToMinutes(timeString) {
     const [hours, minutes] = timeString.split(":").map(Number);
     return hours * 60 + minutes;
   }
 
+  // Convert minutes to time input value ("HH:MM")
   function minutesToTimeInput(minutes) {
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
     return `${hours.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}`;
   }
 
+  // Toggle day selection in Quick Setup
   function toggleDay(dayValue) {
     if (quickSetup.selectedDays.includes(dayValue)) {
       quickSetup.selectedDays = quickSetup.selectedDays.filter(d => d !== dayValue);
@@ -150,6 +172,7 @@
     }
   }
 
+  // Apply Quick Setup to create/update multiple schedules at once
   async function applyQuickSetup() {
     if (quickSetup.selectedDays.length === 0) {
       alert("Please select at least one day");
@@ -165,7 +188,7 @@
         const existing = schedules.find(s => s.day === day && !s.isNew);
         
         if (existing) {
-          // Update existing
+          // Update existing schedule
           const res = await updateSchedule.load({
             id: existing.id,
             channel: channelId,
@@ -180,7 +203,7 @@
             schedules[index] = res.data.updateAppointmentSchedule;
           }
         } else {
-          // Create new
+          // Create new schedule
           const res = await createSchedule.load({
             channel: channelId,
             appointment_form: formId,
@@ -195,15 +218,16 @@
         }
       }
 
+      // Merge new schedules with existing ones
       if (createdSchedules.length > 0) {
         schedules = [...schedules.filter(s => !s.isNew), ...createdSchedules].sort((a, b) => a.day - b.day);
       } else {
-        schedules = [...schedules];
+        schedules = [...schedules]; // Trigger reactivity
       }
 
       alert(`Successfully configured ${quickSetup.selectedDays.length} day(s)!`);
-      showQuickSetup = false;
-      quickSetup.selectedDays = [];
+      showQuickSetup = false;       // Hide Quick Setup panel
+      quickSetup.selectedDays = [];  // Reset selection
     } catch (err) {
       console.error("Error applying quick setup:", err);
       alert(`Error: ${err.message || "Failed to apply quick setup"}`);
@@ -213,16 +237,19 @@
   }
 </script>
 
+<!-- Main schedule manager UI container -->
 <div class="schedule-manager bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
   <div class="flex items-center justify-between mb-4">
     <h3 class="text-lg font-bold text-gray-800">Available Time Slots</h3>
     <div class="flex gap-2">
+      <!-- Toggle Quick Setup panel -->
       <button
         on:click={() => showQuickSetup = !showQuickSetup}
         class="px-4 py-2 bg-purple-500 text-white text-sm font-bold rounded-full hover:bg-purple-600 transition-all"
       >
         ⚡ Quick Setup
       </button>
+      <!-- Add new schedule -->
       <button
         on:click={addSchedule}
         class="px-4 py-2 bg-teal-500 text-white text-sm font-bold rounded-full hover:bg-teal-600 transition-all"
@@ -291,7 +318,7 @@
         </div>
       </div>
 
-      <!-- Apply Button -->
+      <!-- Apply Quick Setup Button -->
       <button
         on:click={applyQuickSetup}
         disabled={saving || quickSetup.selectedDays.length === 0}
@@ -306,16 +333,19 @@
     </div>
   {/if}
 
+  <!-- Loading State -->
   {#if loading}
     <div class="flex justify-center py-8">
       <SMFBLoading color="teal" />
     </div>
   {:else if schedules.length === 0}
+    <!-- Empty state -->
     <div class="text-center py-8 text-gray-500">
       <p class="mb-2">No schedules configured</p>
       <p class="text-sm">Add time slots when your appointment service is available</p>
     </div>
   {:else}
+    <!-- Schedule list -->
     <div class="space-y-4">
       {#each schedules as schedule, i}
         <div class="border border-gray-200 rounded-2xl p-4 {!schedule.is_active ? 'bg-gray-50 opacity-60' : ''}">
@@ -355,7 +385,7 @@
               />
             </div>
 
-            <!-- Actions -->
+            <!-- Actions: Save / Delete -->
             <div class="flex items-end gap-2">
               <button
                 on:click={() => saveSchedule(schedule, i)}
@@ -386,7 +416,7 @@
             </label>
           </div>
 
-          <!-- Display Preview -->
+          <!-- Display Preview for existing schedule -->
           {#if !schedule.isNew}
             <div class="mt-2 text-xs text-gray-500">
               {DAYS.find((d) => d.value === schedule.day)?.label}: {formatTime(schedule.start_time)} - {formatTime(schedule.end_time)}
@@ -397,6 +427,7 @@
     </div>
   {/if}
 
+  <!-- Tip Section -->
   <div class="mt-4 p-4 bg-blue-50 rounded-lg">
     <p class="text-sm text-blue-800">
       <strong>💡 Tip:</strong> Add time slots for each day your appointment service is available. Users will only be able to book during these times.
@@ -405,6 +436,7 @@
 </div>
 
 <style>
+  /* Margin for main container */
   .schedule-manager {
     margin-top: 20px;
   }
