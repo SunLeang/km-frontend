@@ -59,6 +59,7 @@
                 headers: {
                     "Content-Type": "application/json",
                 },
+                credentials: "include", // Send cookies for authentication
                 body: JSON.stringify(payload),
             });
 
@@ -83,7 +84,9 @@
     async function listReports() {
         try {
             const apiUrl = getApiUrl();
-            const response = await fetch(`${apiUrl}/reports/list`);
+            const response = await fetch(`${apiUrl}/reports/list`, {
+                credentials: "include", // Send cookies for authentication
+            });
             const result = await response.json();
 
             if (result.success) {
