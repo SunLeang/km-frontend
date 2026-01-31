@@ -3,15 +3,39 @@
   import MultipleChoiceDisplay from "$components/elements/form/appointment-form/question-types/MultipleChoiceDisplay.svelte";
   import CheckboxDisplay from "$components/elements/form/appointment-form/question-types/CheckboxDisplay.svelte";
   import HeaderDisplay from "$components/elements/form/appointment-form/question-types/HeaderDisplay.svelte";
+  import LinearScaleDisplay from "$components/elements/form/appointment-form/question-types/LinearScaleDisplay.svelte";
+  import LongAnswerDisplay from "$components/elements/form/appointment-form/question-types/LongAnswerDisplay.svelte";
+  import SpecializedInputDisplay from "$components/elements/form/appointment-form/question-types/SpecializedInputDisplay.svelte";
 
   export let question;
   export let value;
 
   const components = {
+    // Text-based inputs
+    TEXT: TextInput,
+    PARAGRAPH: LongAnswerDisplay,
     text: TextInput,
-    textarea: TextInput,
+    textarea: LongAnswerDisplay,
+    
+    // Choice-based inputs
+    MULTIPLE_CHOICE: MultipleChoiceDisplay,
+    CHECKBOXES: CheckboxDisplay,
+    SELECT: MultipleChoiceDisplay,
     multipleChoice: MultipleChoiceDisplay,
     checkbox: CheckboxDisplay,
+    
+    // Specialized inputs
+    DATE: SpecializedInputDisplay,
+    TIME: SpecializedInputDisplay,
+    EMAIL: SpecializedInputDisplay,
+    PHONE: SpecializedInputDisplay,
+    NUMBER: SpecializedInputDisplay,
+    URL: SpecializedInputDisplay,
+    
+    // Scale
+    LINEAR_SCALE: LinearScaleDisplay,
+    
+    // Header
     header: HeaderDisplay,
   };
 

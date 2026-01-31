@@ -1,11 +1,34 @@
 <script>
     import QuestionAnswerCard from "./QuestionAnswerCard.svelte";
     import Close from "$components/icons/Close/Close.svelte";
-    import { createEventDispatcher } from 'svelte';
+    import { createEventDispatcher, onMount } from 'svelte';
+    import { getAnswersByBookingId } from "$providers/actions/kchannel/appointment/dashboard";
+    import SMFBLoading from "$components/materials/spinners/fbLoading/SMFBLoading.svelte";
 
-    let showProfile = false
+    export let appointmentInfo;
+    let showProfile = false;
+    let loading = true;
+    let answers = [];
 
     const dispatch = createEventDispatcher();
+
+    onMount(async () => {
+        if (appointmentInfo?.id) {
+            try {
+                loading = true;
+                const res = await getAnswersByBookingId.load(appointmentInfo.id);
+                if (res?.success) {
+                    answers = res.data?.getAnswersByBookingId || [];
+                }
+            } catch (err) {
+                console.error("Error loading answers:", err);
+            } finally {
+                loading = false;
+            }
+        } else {
+            loading = false;
+        }
+    });
 </script>
 
 <div class="flex items-center justify-center w-full h-full">
@@ -25,21 +48,34 @@
         </ul>
         {#if !showProfile}
         <div class=" overflow-scroll h-[50vh]">
-            <QuestionAnswerCard question="What are your systoms?" answer="My symptoms are a runny nose, sore throat, and a bit of coughing."/>
-            <QuestionAnswerCard question="What are your systoms?" answer="My symptoms are a runny nose, sore throat, and a bit of coughing."/>
-            <QuestionAnswerCard question="What are your systoms?" answer="My symptoms are a runny nose, sore throat, and a bit of coughing."/>
-            <QuestionAnswerCard question="What are your systoms?" answer="My symptoms are a runny nose, sore throat, and a bit of coughing."/>
-            <QuestionAnswerCard question="What are your systoms?" answer="My symptoms are a runny nose, sore throat, and a bit of coughing."/>
-            <QuestionAnswerCard question="What are your systoms?" answer="My symptoms are a runny nose, sore throat, and a bit of coughing."/>
+            {#if loading}
+                <div class="flex justify-center items-center h-full">
+                    <SMFBLoading color="teal" />
+                </div>
+            {:else if answers.length === 0}
+                <div class="flex justify-center items-center h-full text-gray-500">
+                    <p>No answers found for this appointment.</p>
+                </div>
+            {:else}
+                {#each answers as answer}
+                    {@const answerObj = typeof answer.answer === 'string' ? JSON.parse(answer.answer) : answer.answer}
+                    {@const questionText = answer.appointment_question?.question || answerObj?.questionLabel || "No question"}
+                    {@const answerValue = answerObj?.value || answerObj || "No answer"}
+                    <QuestionAnswerCard 
+                        question={questionText} 
+                        answer={typeof answerValue === 'object' ? JSON.stringify(answerValue) : answerValue}
+                    />
+                {/each}
+            {/if}
         </div>
         {:else}
             <div class="max-w-lg mx-auto bg-white rounded-lg shadow-md p-5">
-                <img class="w-32 h-32 rounded-full mx-auto" src="https://i.redd.it/vik1m2dpa98a1.jpg" alt="Profile picture">
-                <h2 class="text-center text-2xl font-semibold mt-3">John Doe</h2>
-                <p class="text-center text-gray-600 mt-1">Software Engineer</p>
+                <img class="w-32 h-32 rounded-full mx-auto" src="https://placehold.co/400" alt="Profile picture">
+                <h2 class="text-center text-2xl font-semibold mt-3">{appointmentInfo?.user?.firstName || "User"} {appointmentInfo?.user?.lastName || ""}</h2>
+                <p class="text-center text-gray-600 mt-1">@{appointmentInfo?.user?.username || "username"}</p>
                 <div class="mt-5">
                 <h3 class="text-xl font-semibold">Bio</h3>
-                <p class="text-gray-600 mt-2">John is a software engineer with over 10 years of experience in developing web and mobile applications. He is skilled in JavaScript, React, and Node.js.</p>
+                <p class="text-gray-600 mt-2">User profile information will be displayed here.</p>
                 </div>
             </div>
         {/if}
