@@ -1,8 +1,20 @@
 <script>
     import { page } from "$app/stores";
     import { onMount } from "svelte";
+    import { browser } from "$app/environment";
 
     $: channelId = $page.params.channelId;
+
+    // Get API URL from environment or use window location
+    const getApiUrl = () => {
+        if (browser) {
+            // In browser, use the same host as the frontend
+            const protocol = window.location.protocol;
+            const hostname = window.location.hostname;
+            return `${protocol}//${hostname}:3000`;
+        }
+        return "http://localhost:3000";
+    };
 
     let reportState = {
         loading: false,
@@ -41,7 +53,8 @@
                 payload.status = filters.status;
             }
 
-            const response = await fetch("http://localhost:3000/reports/generate", {
+            const apiUrl = getApiUrl();
+            const response = await fetch(`${apiUrl}/reports/generate`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -69,7 +82,8 @@
 
     async function listReports() {
         try {
-            const response = await fetch("http://localhost:3000/reports/list");
+            const apiUrl = getApiUrl();
+            const response = await fetch(`${apiUrl}/reports/list`);
             const result = await response.json();
 
             if (result.success) {
